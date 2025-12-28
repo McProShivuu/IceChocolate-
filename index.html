@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>IceChocolate</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    background:#EEE1B4;
+}
+
+header{
+    background:#341d09;
+    color:white;
+    padding:15px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+nav a{
+    color:white;
+    margin:0 10px;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.login-btn{
+    background:white;
+    color:#341d09;
+    padding:8px 14px;
+    border-radius:20px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.user{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.user img{
+    width:35px;
+    border-radius:50%;
+}
+
+.hero{
+    background:#c7a183;
+    padding:60px 20px;
+    text-align:center;
+    color:white;
+}
+
+.section{
+    max-width:1000px;
+    margin:auto;
+    padding:40px 20px;
+}
+
+.products{
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
+    justify-content:center;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    width:250px;
+    border-radius:12px;
+    box-shadow:0 0 15px rgba(0,0,0,.15);
+    text-align:center;
+}
+
+footer{
+    background:#3b2a20;
+    color:white;
+    text-align:center;
+    padding:15px;
+}
+
+/* LOGIN MODAL */
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.6);
+    display:none;
+    justify-content:center;
+    align-items:center;
+}
+
+.modal-box{
+    background:white;
+    padding:30px;
+    width:300px;
+    border-radius:14px;
+    text-align:center;
+}
+
+.google-btn{
+    background:#4285F4;
+    color:white;
+    border:none;
+    padding:12px;
+    width:100%;
+    border-radius:8px;
+    font-size:16px;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>IceChocolate</h1>
+    <nav>
+        <a href="#about">About</a>
+        <a href="#menu">Menu</a>
+        <a href="#contact">Contact</a>
+    </nav>
+
+    <div id="authArea">
+        <div class="login-btn" onclick="openLogin()">Login</div>
+    </div>
+</header>
+
+<section class="hero">
+    <h2>Healthy Ice Cream & Chocolate</h2>
+    <p>Protein-rich • Guilt-free • Delicious</p>
+</section>
+
+<section class="section" id="about">
+    <h2>About Us</h2>
+    <p style="text-align:center">
+        IceChocolate creates fitness-friendly desserts with natural ingredients.
+    </p>
+</section>
+
+<section class="section" id="menu">
+    <h2 style="text-align:center">Our Menu</h2>
+    <div class="products">
+        <div class="card"><h3>Protein Ice Cream</h3></div>
+        <div class="card"><h3>Healthy Chocolate</h3></div>
+        <div class="card"><h3>Protein Bowl</h3></div>
+    </div>
+</section>
+
+<section class="section" id="contact">
+    <h2>Contact</h2>
+    <p style="text-align:center">📞 +91 9974990603</p>
+</section>
+
+<footer>© 2025 IceChocolate</footer>
+
+<!-- LOGIN MODAL -->
+<div class="modal" id="loginModal">
+    <div class="modal-box">
+        <h2>Login</h2>
+        <button class="google-btn" onclick="googleLogin()">Login with Google</button>
+        <p style="cursor:pointer;margin-top:10px" onclick="closeLogin()">Cancel</p>
+    </div>
+</div>
+
+<!-- 🔥 FIREBASE MODULE SCRIPT -->
+<script type="module">
+/* IMPORTS */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+
+/* YOUR CONFIG (PASTED EXACTLY) */
+const firebaseConfig = {
+  apiKey: "AIzaSyAm-QUwp0pr0997PdvhMwcDJapL8sGXyWc",
+  authDomain: "cafw-32f1d.firebaseapp.com",
+  projectId: "cafw-32f1d",
+  storageBucket: "cafw-32f1d.firebasestorage.app",
+  messagingSenderId: "92588625120",
+  appId: "1:92588625120:web:9cb0570bd2dc3622039485",
+  measurementId: "G-B8WD36PH1Y"
+};
+
+/* INIT */
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+/* UI FUNCTIONS */
+window.openLogin = () => {
+    document.getElementById("loginModal").style.display="flex";
+};
+window.closeLogin = () => {
+    document.getElementById("loginModal").style.display="none";
+};
+
+/* GOOGLE LOGIN */
+window.googleLogin = () => {
+    signInWithPopup(auth, provider)
+        .then(() => closeLogin())
+        .catch(err => alert(err.message));
+};
+
+/* LOGOUT */
+window.logout = () => signOut(auth);
+
+/* AUTH STATE */
+onAuthStateChanged(auth, user => {
+    const area = document.getElementById("authArea");
+    if(user){
+        area.innerHTML = `
+            <div class="user">
+                <img src="${user.photoURL}">
+                <span>${user.displayName}</span>
+                <button onclick="logout()">Logout</button>
+            </div>`;
+    }else{
+        area.innerHTML = `<div class="login-btn" onclick="openLogin()">Login</div>`;
+    }
+});
+</script>
+
+</body>
+</html>
