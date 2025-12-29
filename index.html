@@ -2,115 +2,98 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>IceChocolate</title>
+<title>IceChocolate Orders</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body{
-    margin:0;
-    font-family:Arial, Helvetica, sans-serif;
-    background:#EEE1B4;
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#f3e6c8;
 }
-
 header{
-    background:#341d09;
-    color:white;
-    padding:15px 20px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+  background:#2b1607;
+  color:white;
+  padding:15px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
-
-nav a{
-    color:white;
-    margin:0 10px;
-    text-decoration:none;
-    font-weight:bold;
-}
-
 .login-btn{
-    background:white;
-    color:#341d09;
-    padding:8px 14px;
-    border-radius:20px;
-    cursor:pointer;
-    font-weight:bold;
+  background:white;
+  color:#2b1607;
+  padding:8px 14px;
+  border-radius:20px;
+  cursor:pointer;
 }
-
 .user{
-    display:flex;
-    align-items:center;
-    gap:10px;
+  display:flex;
+  gap:8px;
+  align-items:center;
 }
-
 .user img{
-    width:35px;
-    border-radius:50%;
+  width:34px;
+  border-radius:50%;
 }
-
-.hero{
-    background:#c7a183;
-    padding:60px 20px;
-    text-align:center;
-    color:white;
-}
-
-.section{
-    max-width:1000px;
-    margin:auto;
-    padding:40px 20px;
-}
-
 .products{
-    display:flex;
-    gap:20px;
-    flex-wrap:wrap;
-    justify-content:center;
+  padding:20px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:15px;
 }
-
 .card{
-    background:white;
-    padding:20px;
-    width:250px;
-    border-radius:12px;
-    box-shadow:0 0 15px rgba(0,0,0,.15);
-    text-align:center;
+  background:white;
+  padding:15px;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,.15);
+  text-align:center;
+}
+.card button{
+  margin-top:10px;
+  padding:8px;
+  border:none;
+  background:#2b1607;
+  color:white;
+  border-radius:8px;
+  cursor:pointer;
+}
+.cart{
+  background:#fff;
+  padding:15px;
+  position:fixed;
+  bottom:0;
+  width:100%;
+  box-shadow:0 -3px 10px rgba(0,0,0,.2);
+}
+.cart button{
+  width:100%;
+  padding:12px;
+  background:green;
+  color:white;
+  border:none;
+  border-radius:10px;
+  font-size:16px;
 }
 
-footer{
-    background:#3b2a20;
-    color:white;
-    text-align:center;
-    padding:15px;
-}
-
-/* LOGIN MODAL */
+/* MODAL */
 .modal{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.6);
-    display:none;
-    justify-content:center;
-    align-items:center;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;
+  justify-content:center;
+  align-items:center;
 }
-
 .modal-box{
-    background:white;
-    padding:30px;
-    width:300px;
-    border-radius:14px;
-    text-align:center;
+  background:white;
+  padding:25px;
+  border-radius:15px;
+  width:300px;
 }
-
-.google-btn{
-    background:#4285F4;
-    color:white;
-    border:none;
-    padding:12px;
-    width:100%;
-    border-radius:8px;
-    font-size:16px;
-    cursor:pointer;
+input{
+  width:100%;
+  padding:10px;
+  margin:6px 0;
 }
 </style>
 </head>
@@ -118,110 +101,138 @@ footer{
 <body>
 
 <header>
-    <h1>IceChocolate</h1>
-    <nav>
-        <a href="#about">About</a>
-        <a href="#menu">Menu</a>
-        <a href="#contact">Contact</a>
-    </nav>
-
-    <div id="authArea">
-        <div class="login-btn" onclick="openLogin()">Login</div>
-    </div>
+  <h2>IceChocolate</h2>
+  <div id="authArea">
+    <div class="login-btn" onclick="openLogin()">Login</div>
+  </div>
 </header>
 
-<section class="hero">
-    <h2>Healthy Ice Cream & Chocolate</h2>
-    <p>Protein-rich • Guilt-free • Delicious</p>
+<section class="products">
+  <div class="card">
+    <h3>Protein Ice Cream</h3>
+    <p>₹120</p>
+    <button onclick="addToCart('Protein Ice Cream',120)">Add</button>
+  </div>
+  <div class="card">
+    <h3>Healthy Chocolate</h3>
+    <p>₹90</p>
+    <button onclick="addToCart('Healthy Chocolate',90)">Add</button>
+  </div>
+  <div class="card">
+    <h3>Protein Bowl</h3>
+    <p>₹150</p>
+    <button onclick="addToCart('Protein Bowl',150)">Add</button>
+  </div>
 </section>
 
-<section class="section" id="about">
-    <h2>About Us</h2>
-    <p style="text-align:center">
-        IceChocolate creates fitness-friendly desserts with natural ingredients.
-    </p>
-</section>
-
-<section class="section" id="menu">
-    <h2 style="text-align:center">Our Menu</h2>
-    <div class="products">
-        <div class="card"><h3>Protein Ice Cream</h3></div>
-        <div class="card"><h3>Healthy Chocolate</h3></div>
-        <div class="card"><h3>Protein Bowl</h3></div>
-    </div>
-</section>
-
-<section class="section" id="contact">
-    <h2>Contact</h2>
-    <p style="text-align:center">📞 +91 9974990603</p>
-</section>
-
-<footer>© 2025 IceChocolate</footer>
+<div class="cart">
+  <div id="cartInfo">Cart empty</div>
+  <button onclick="placeOrder()">Place Order</button>
+</div>
 
 <!-- LOGIN MODAL -->
 <div class="modal" id="loginModal">
-    <div class="modal-box">
-        <h2>Login</h2>
-        <button class="google-btn" onclick="googleLogin()">Login with Google</button>
-        <p style="cursor:pointer;margin-top:10px" onclick="closeLogin()">Cancel</p>
-    </div>
+  <div class="modal-box">
+    <h3>Login</h3>
+    <input id="email" type="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+    <button onclick="emailLogin()">Email Login</button>
+    <button onclick="googleLogin()">Google Login</button>
+    <button onclick="closeLogin()">Cancel</button>
+  </div>
 </div>
 
-<!-- 🔥 FIREBASE MODULE SCRIPT -->
 <script type="module">
-/* IMPORTS */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+import {
+  getAuth, GoogleAuthProvider,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
+  setPersistence,
+  browserLocalPersistence
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* YOUR CONFIG (PASTED EXACTLY) */
 const firebaseConfig = {
   apiKey: "AIzaSyAm-QUwp0pr0997PdvhMwcDJapL8sGXyWc",
   authDomain: "cafw-32f1d.firebaseapp.com",
-  projectId: "cafw-32f1d",
-  storageBucket: "cafw-32f1d.firebasestorage.app",
-  messagingSenderId: "92588625120",
-  appId: "1:92588625120:web:9cb0570bd2dc3622039485",
-  measurementId: "G-B8WD36PH1Y"
+  projectId: "cafw-32f1d"
 };
 
-/* INIT */
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 const auth = getAuth(app);
+const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
+setPersistence(auth, browserLocalPersistence);
 
-/* UI FUNCTIONS */
-window.openLogin = () => {
-    document.getElementById("loginModal").style.display="flex";
-};
-window.closeLogin = () => {
-    document.getElementById("loginModal").style.display="none";
-};
+let cart=[];
+let total=0;
+let currentUser=null;
 
-/* GOOGLE LOGIN */
-window.googleLogin = () => {
-    signInWithPopup(auth, provider)
-        .then(() => closeLogin())
-        .catch(err => alert(err.message));
+window.addToCart=(name,price)=>{
+  cart.push({name,price});
+  total+=price;
+  cartInfo.innerText=`Items: ${cart.length} | Total: ₹${total}`;
 };
 
-/* LOGOUT */
-window.logout = () => signOut(auth);
+window.placeOrder=async()=>{
+  if(!currentUser){
+    alert("Login first");
+    return;
+  }
+  if(cart.length===0){
+    alert("Cart empty");
+    return;
+  }
+  await addDoc(collection(db,"orders"),{
+    uid:currentUser.uid,
+    email:currentUser.email,
+    items:cart,
+    total:total,
+    status:"pending",
+    createdAt: serverTimestamp()
+  });
+  alert("Order placed 🔥");
+  cart=[];
+  total=0;
+  cartInfo.innerText="Cart empty";
+};
 
-/* AUTH STATE */
-onAuthStateChanged(auth, user => {
-    const area = document.getElementById("authArea");
-    if(user){
-        area.innerHTML = `
-            <div class="user">
-                <img src="${user.photoURL}">
-                <span>${user.displayName}</span>
-                <button onclick="logout()">Logout</button>
-            </div>`;
-    }else{
-        area.innerHTML = `<div class="login-btn" onclick="openLogin()">Login</div>`;
-    }
+window.openLogin=()=>loginModal.style.display="flex";
+window.closeLogin=()=>loginModal.style.display="none";
+
+window.googleLogin=()=>{
+  signInWithPopup(auth,provider).then(closeLogin);
+};
+
+window.emailLogin=()=>{
+  signInWithEmailAndPassword(auth,email.value,password.value)
+  .then(closeLogin)
+  .catch(()=>createUserWithEmailAndPassword(auth,email.value,password.value).then(closeLogin));
+};
+
+window.logout=()=>signOut(auth);
+
+onAuthStateChanged(auth,user=>{
+  currentUser=user;
+  if(user){
+    authArea.innerHTML=`
+    <div class="user">
+      <img src="${user.photoURL || 'https://i.imgur.com/1X6R0P8.png'}">
+      <span>${user.email}</span>
+      <button onclick="logout()">Logout</button>
+    </div>`;
+  }else{
+    authArea.innerHTML=`<div class="login-btn" onclick="openLogin()">Login</div>`;
+  }
 });
 </script>
 
