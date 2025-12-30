@@ -15,7 +15,7 @@
 body.dark{
   --bg:#121212;
   --card:#1f1f1f;
-  --text:#fff;
+  --text:#ffffff;
   --primary:#bb86fc;
 }
 body{
@@ -68,21 +68,32 @@ footer{
   background:var(--card);
   padding:10px;
 }
-.search-box{
-  margin:10px 0;
-}
 .search-box input{
   width:100%;
   padding:10px;
   border-radius:8px;
   border:1px solid #aaa;
-  font-size:16px;
 }
+.hidden{display:none}
 @keyframes fade{
   from{opacity:0;transform:translateY(10px)}
   to{opacity:1}
 }
-.hidden{display:none}
+
+/* PAYMENT MODAL */
+#paymentModal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+}
+.modal{
+  background:var(--card);
+  padding:20px;
+  border-radius:12px;
+  width:300px;
+  margin:120px auto;
+}
 </style>
 </head>
 
@@ -105,16 +116,34 @@ footer{
 <!-- HOME -->
 <div id="home" class="page active">
   <h2>Welcome to IceChocolate 🍫</h2>
-  <p>Search & enjoy healthy desserts made with love ❤️</p>
+  <p>
+    IceChocolate is your destination for <b>healthy ice creams and chocolates</b>
+    made using premium cocoa, fresh fruits 🍓 and zero-compromise ingredients.
+  </p>
+
+  <p>
+    We focus on:
+  </p>
+  <ul>
+    <li>🍦 Low-sugar & protein-rich desserts</li>
+    <li>🍫 Rich chocolate flavors without guilt</li>
+    <li>🌱 Clean ingredients & no artificial junk</li>
+  </ul>
+
+  <p>
+    Browse our shop, add your favorite treats to cart, and experience our
+    smooth demo checkout system.
+  </p>
+
+  <button onclick="show('shop')" class="primary">Start Shopping</button>
 </div>
 
 <!-- SHOP -->
 <div id="shop" class="page">
   <h2>Shop</h2>
 
-  <!-- SEARCH BAR -->
   <div class="search-box">
-    <input type="text" id="searchInput" placeholder="Search ice cream or chocolate..." onkeyup="searchProducts()">
+    <input id="searchInput" placeholder="Search desserts..." onkeyup="searchProducts()">
   </div>
 
   <p id="noResult" class="hidden">❌ No product found</p>
@@ -122,23 +151,23 @@ footer{
   <div class="grid" id="productGrid">
 
     <div class="card product" data-name="Velvet Crush">
-      <img src="https://images.unsplash.com/photo-1606313564200-e75d5e30476c">
       <h3>Velvet Crush</h3>
-      <p>₹180</p>
+      <p>Soft, creamy & rich cocoa layers</p>
+      <p><b>₹180</b></p>
       <button onclick="add('Velvet Crush',180)" class="primary">Add</button>
     </div>
 
     <div class="card product" data-name="Strata Sweets">
-      <img src="https://images.unsplash.com/photo-1614707267537-2c59c8e0b4b4">
       <h3>Strata Sweets</h3>
-      <p>₹160</p>
+      <p>Light texture with fruity sweetness</p>
+      <p><b>₹160</b></p>
       <button onclick="add('Strata Sweets',160)" class="primary">Add</button>
     </div>
 
     <div class="card product" data-name="Velvet Layers">
-      <img src="https://images.unsplash.com/photo-1605475128023-0c7b2a1fcd43">
       <h3>Velvet Layers</h3>
-      <p>₹190</p>
+      <p>Luxury chocolate & cream blend</p>
+      <p><b>₹190</b></p>
       <button onclick="add('Velvet Layers',190)" class="primary">Add</button>
     </div>
 
@@ -163,6 +192,17 @@ footer{
   <span id="cartText">Cart empty</span>
   <button onclick="startPayment()" class="primary" style="float:right">Checkout</button>
 </footer>
+
+<!-- DEMO PAYMENT -->
+<div id="paymentModal">
+  <div class="modal">
+    <h3>Demo Payment</h3>
+    <p>Total: ₹<span id="payAmount">0</span></p>
+    <button onclick="pay('UPI')" class="primary">Pay with UPI</button>
+    <button onclick="pay('Card')" class="primary">Pay with Card</button>
+    <button onclick="closePay()">Cancel</button>
+  </div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
@@ -193,7 +233,7 @@ onAuthStateChanged(auth,async u=>{
     orderList.innerHTML="";
     snap.forEach(d=>{
       let li=document.createElement("li");
-      li.textContent=`${d.data().items.length} items`;
+      li.textContent=`${d.data().items.length} items - ${d.data().payment || "Demo"}`;
       orderList.appendChild(li);
     });
   }
@@ -204,36 +244,40 @@ window.add=(n,p)=>{
   cartText.innerText=`${cart.length} items`;
 };
 
-window.startPayment=async()=>{
-  if(!user||!cart.length)return alert("Login or add items");
+window.startPayment=()=>{
+  if(!user||!cart.length) return alert("Login or add items");
+  payAmount.innerText=cart.reduce((s,i)=>s+i.price,0);
+  paymentModal.style.display="block";
+};
+
+window.pay=async(method)=>{
   await addDoc(collection(db,"orders"),{
-    uid:user.uid,items:cart,time:serverTimestamp()
+    uid:user.uid,
+    items:cart,
+    payment:method,
+    status:"Paid (Demo)",
+    time:serverTimestamp()
   });
-  cart=[];cartText.innerText="Cart empty";
-  alert("Order placed 🎉");
+  cart=[]; cartText.innerText="Cart empty";
+  paymentModal.style.display="none";
+  alert("Payment Successful 🎉");
+};
+
+window.closePay=()=>paymentModal.style.display="none";
+
+window.searchProducts=()=>{
+  const v=searchInput.value.toLowerCase();
+  let found=false;
+  document.querySelectorAll(".product").forEach(p=>{
+    const ok=p.dataset.name.toLowerCase().includes(v);
+    p.style.display=ok?"block":"none";
+    if(ok) found=true;
+  });
+  noResult.classList.toggle("hidden",found);
 };
 
 window.toggleTheme=cb=>{
   document.body.classList.toggle("dark",cb.checked);
-};
-
-/* 🔍 SEARCH FUNCTION */
-window.searchProducts=()=>{
-  const input=document.getElementById("searchInput").value.toLowerCase();
-  const products=document.querySelectorAll(".product");
-  let found=false;
-
-  products.forEach(p=>{
-    const name=p.dataset.name.toLowerCase();
-    if(name.includes(input)){
-      p.style.display="block";
-      found=true;
-    }else{
-      p.style.display="none";
-    }
-  });
-
-  document.getElementById("noResult").classList.toggle("hidden",found);
 };
 
 window.show=id=>{
