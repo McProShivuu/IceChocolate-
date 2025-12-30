@@ -6,18 +6,34 @@
 <title>IceChocolate 🍫</title>
 
 <style>
+:root{
+  --bg:#f6e8c3;
+  --card:#ffffff;
+  --text:#000;
+  --primary:#3b1f0f;
+}
+body.dark{
+  --bg:#121212;
+  --card:#1f1f1f;
+  --text:#fff;
+  --primary:#bb86fc;
+}
 body{
   margin:0;
   font-family:Arial,Helvetica,sans-serif;
-  background:#f6e8c3;
+  background:var(--bg);
+  color:var(--text);
+  transition:.3s;
 }
 header{
-  background:#3b1f0f;
+  background:var(--primary);
   color:#fff;
   padding:15px;
   display:flex;
   justify-content:space-between;
-  align-items:center;
+}
+nav{
+  padding:10px;
 }
 nav button{
   margin:5px;
@@ -26,39 +42,54 @@ nav button{
   border-radius:6px;
   cursor:pointer;
 }
-.page{display:none;padding:20px;animation:fade 0.4s;}
-.page.active{display:block;}
+.page{display:none;padding:20px;animation:fade .4s}
+.page.active{display:block}
 .card{
-  background:#fff;
+  background:var(--card);
   padding:15px;
   margin:10px;
-  border-radius:12px;
-  box-shadow:0 5px 15px rgba(0,0,0,0.2);
+  border-radius:15px;
+  box-shadow:0 5px 15px rgba(0,0,0,.2);
+  width:260px;
 }
+.card img{width:100%;border-radius:12px}
 .grid{display:flex;flex-wrap:wrap}
 button.primary{
-  background:#3b1f0f;
+  background:var(--primary);
   color:#fff;
-}
-@keyframes fade{
-  from{opacity:0;transform:translateY(10px)}
-  to{opacity:1;transform:none}
+  border:none;
+  padding:8px 14px;
+  border-radius:6px;
+  cursor:pointer;
 }
 footer{
   position:fixed;
-  bottom:0;
-  width:100%;
-  background:#fff;
+  bottom:0;width:100%;
+  background:var(--card);
   padding:10px;
-  box-shadow:0 -3px 10px rgba(0,0,0,0.2);
 }
+.search-box{
+  margin:10px 0;
+}
+.search-box input{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #aaa;
+  font-size:16px;
+}
+@keyframes fade{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1}
+}
+.hidden{display:none}
 </style>
 </head>
 
 <body>
 
 <header>
-  <b>IceChocolate</b>
+  <b>IceChocolate 🍨</b>
   <div id="userBox">
     <button onclick="login()" class="primary">Login</button>
   </div>
@@ -68,98 +99,144 @@ footer{
   <button onclick="show('home')">Home</button>
   <button onclick="show('shop')">Shop</button>
   <button onclick="show('orders')">Orders</button>
+  <button onclick="show('account')">My Account</button>
 </nav>
 
+<!-- HOME -->
 <div id="home" class="page active">
-  <h2>Welcome 🍦</h2>
-  <p>Healthy ice creams & chocolates</p>
+  <h2>Welcome to IceChocolate 🍫</h2>
+  <p>Search & enjoy healthy desserts made with love ❤️</p>
 </div>
 
+<!-- SHOP -->
 <div id="shop" class="page">
   <h2>Shop</h2>
-  <div class="grid">
-    <div class="card">
-      <h3>Protein Ice Cream</h3>
-      <p>₹120</p>
-      <button onclick="add('Protein Ice Cream',120)" class="primary">Add</button>
+
+  <!-- SEARCH BAR -->
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search ice cream or chocolate..." onkeyup="searchProducts()">
+  </div>
+
+  <p id="noResult" class="hidden">❌ No product found</p>
+
+  <div class="grid" id="productGrid">
+
+    <div class="card product" data-name="Velvet Crush">
+      <img src="https://images.unsplash.com/photo-1606313564200-e75d5e30476c">
+      <h3>Velvet Crush</h3>
+      <p>₹180</p>
+      <button onclick="add('Velvet Crush',180)" class="primary">Add</button>
     </div>
-    <div class="card">
-      <h3>Healthy Chocolate</h3>
-      <p>₹90</p>
-      <button onclick="add('Healthy Chocolate',90)" class="primary">Add</button>
+
+    <div class="card product" data-name="Strata Sweets">
+      <img src="https://images.unsplash.com/photo-1614707267537-2c59c8e0b4b4">
+      <h3>Strata Sweets</h3>
+      <p>₹160</p>
+      <button onclick="add('Strata Sweets',160)" class="primary">Add</button>
     </div>
+
+    <div class="card product" data-name="Velvet Layers">
+      <img src="https://images.unsplash.com/photo-1605475128023-0c7b2a1fcd43">
+      <h3>Velvet Layers</h3>
+      <p>₹190</p>
+      <button onclick="add('Velvet Layers',190)" class="primary">Add</button>
+    </div>
+
   </div>
 </div>
 
+<!-- ORDERS -->
 <div id="orders" class="page">
   <h2>Your Orders</h2>
   <ul id="orderList"></ul>
 </div>
 
+<!-- ACCOUNT -->
+<div id="account" class="page">
+  <h2>My Account</h2>
+  <label>
+    <input type="checkbox" onchange="toggleTheme(this)"> Dark Mode
+  </label>
+</div>
+
 <footer>
   <span id="cartText">Cart empty</span>
-  <button onclick="placeOrder()" class="primary" style="float:right">Place Order</button>
+  <button onclick="startPayment()" class="primary" style="float:right">Checkout</button>
 </footer>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, setDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAm-QUwp0pr0997PdvhMwcDJapL8sGXyWc",
-  authDomain: "cafw-32f1d.firebaseapp.com",
-  projectId: "cafw-32f1d",
-  storageBucket: "cafw-32f1d.firebasestorage.app",
-  messagingSenderId: "92588625120",
-  appId: "1:92588625120:web:9cb0570bd2dc3622039485"
+const firebaseConfig={
+  apiKey:"AIzaSyAm-QUwp0pr0997PdvhMwcDJapL8sGXyWc",
+  authDomain:"cafw-32f1d.firebaseapp.com",
+  projectId:"cafw-32f1d"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const provider = new GoogleAuthProvider();
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+const provider=new GoogleAuthProvider();
 
-let user=null;
-let cart=[];
+let user=null,cart=[];
 
-window.login = async ()=>{
-  await signInWithPopup(auth,provider);
-};
+window.login=()=>signInWithPopup(auth,provider);
+window.logout=()=>signOut(auth);
 
-window.logout = ()=>signOut(auth);
-
-onAuthStateChanged(auth,u=>{
+onAuthStateChanged(auth,async u=>{
   if(u){
     user=u;
-    document.getElementById("userBox").innerHTML=
-      `${u.email} <button onclick="logout()">Logout</button>`;
-    setDoc(doc(db,"users",u.uid),{
-      email:u.email,
-      lastLogin:serverTimestamp()
-    },{merge:true});
+    userBox.innerHTML=`${u.email} <button onclick="logout()">Logout</button>`;
+    const snap=await getDocs(query(collection(db,"orders"),where("uid","==",u.uid)));
+    orderList.innerHTML="";
+    snap.forEach(d=>{
+      let li=document.createElement("li");
+      li.textContent=`${d.data().items.length} items`;
+      orderList.appendChild(li);
+    });
   }
 });
 
-window.add=(name,price)=>{
-  cart.push({name,price});
-  document.getElementById("cartText").innerText=`${cart.length} items`;
+window.add=(n,p)=>{
+  cart.push({name:n,price:p});
+  cartText.innerText=`${cart.length} items`;
 };
 
-window.placeOrder=async ()=>{
-  if(!user){alert("Login first");return;}
-  if(cart.length==0){alert("Cart empty");return;}
+window.startPayment=async()=>{
+  if(!user||!cart.length)return alert("Login or add items");
   await addDoc(collection(db,"orders"),{
-    uid:user.uid,
-    items:cart,
-    time:serverTimestamp()
+    uid:user.uid,items:cart,time:serverTimestamp()
   });
+  cart=[];cartText.innerText="Cart empty";
   alert("Order placed 🎉");
-  cart=[];
-  document.getElementById("cartText").innerText="Cart empty";
 };
 
-window.show=(id)=>{
+window.toggleTheme=cb=>{
+  document.body.classList.toggle("dark",cb.checked);
+};
+
+/* 🔍 SEARCH FUNCTION */
+window.searchProducts=()=>{
+  const input=document.getElementById("searchInput").value.toLowerCase();
+  const products=document.querySelectorAll(".product");
+  let found=false;
+
+  products.forEach(p=>{
+    const name=p.dataset.name.toLowerCase();
+    if(name.includes(input)){
+      p.style.display="block";
+      found=true;
+    }else{
+      p.style.display="none";
+    }
+  });
+
+  document.getElementById("noResult").classList.toggle("hidden",found);
+};
+
+window.show=id=>{
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 };
